@@ -174,7 +174,7 @@ def get_valid_locations(board):
 
 def add_power_up():
     num = random.randint(0,2)
-    avail_power_ups = ['Color Swap', 'Remove Piece', 'Swap Positions']
+    avail_power_ups = ['Color Swap', 'Remove Piece', 'Swap Positions', 'Double Move']
     return avail_power_ups[num]
 
 def swap_pos(board):
@@ -292,7 +292,7 @@ turn = random.randint(PLAYER, AI)
 startTurn = True
 avail_power_ups = []
 total_turns = 0
-
+repeat_turn = False
 
 while not game_over:
 
@@ -319,6 +319,9 @@ while not game_over:
 				if chosenPU == "Swap Positions":
 					#insert swap position function
 					swap_pos(board)
+					avail_power_ups.remove(chosenPU)
+				if chosenPU == "Double Move":
+					repeat_turn = True
 					avail_power_ups.remove(chosenPU)
      
 				startTurn = False
@@ -351,8 +354,11 @@ while not game_over:
 						screen.blit(label, (40,10))
 						game_over = True
 
-					turn += 1
-					turn = turn % 2
+					if repeat_turn==False:
+						turn += 1
+						turn = turn % 2
+					else:
+						repeat_turn = False
 
 
 					total_turns += 1
