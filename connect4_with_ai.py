@@ -173,8 +173,7 @@ def get_valid_locations(board):
 	return valid_locations
 
 def add_power_up():
-    #num = random.randint(0,2)
-    num = 0 
+    num = random.randint(0,2)
     avail_power_ups = ['Color Swap', 'Remove Piece', 'Swap Positions']
     return avail_power_ups[num]
 
@@ -199,8 +198,8 @@ def swap_pos(board):
             print("Not a valid piece!")
     board[r1 - 1][c1 - 1] = piece_two
     board[r2 - 1][c2 - 1] = piece_one
-    print(piece_one)
-    print(piece_two)
+    # print(piece_one)
+    # print(piece_two)
     draw_board(board)
 
 
@@ -214,7 +213,9 @@ def remove_piece(board):
         piece = board[r - 1][c - 1]
         if piece == 0:
             print("Not a valid piece!")
-    board[r - 1][c - 1] = 0
+    for i in range(r, 6):
+            board[i - 1][c - 1] = board[i][c - 1]
+            board[i][c - 1] = 0
     draw_board(board)
     
 def color_swap(board):
@@ -309,12 +310,10 @@ while not game_over:
 				chosenPU = avail_power_ups[numPick - 1]
 				if chosenPU == "Color Swap":
 					#insert colorswap function
-					print("colorswap")
 					color_swap(board)
 					avail_power_ups.remove(chosenPU)
 				if chosenPU == "Remove Piece":
 					#insert remove piece function
-					print("removepiece")
 					remove_piece(board)
 					avail_power_ups.remove(chosenPU)
 				if chosenPU == "Swap Positions":
