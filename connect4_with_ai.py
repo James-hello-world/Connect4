@@ -172,6 +172,68 @@ def get_valid_locations(board):
 			valid_locations.append(col)
 	return valid_locations
 
+def add_power_up():
+    num = random.randint(0,2)
+    avail_power_ups = ['Color Swap', 'Remove Piece', 'Swap Positions', 'Double Move']
+    return avail_power_ups[num]
+
+def swap_pos(board):
+    piece_one, piece_two = 0, 0
+    if piece_one != PLAYER_PIECE or piece_one != AI_PIECE:
+        print("Please select a player or opponent piece.")
+        row_one = input("Pick the row of the first piece you want to swap: ")
+        col_one = input("Pick the column of the first piece you want to swap: ")
+        r1, c1 = int(row_one), int(col_one)
+        piece_one = board[r1 - 1][c1 - 1]
+        print(piece_one)
+        if piece_one == 0:
+            print("Not a valid piece!")
+    if piece_two != PLAYER_PIECE or piece_one != AI_PIECE:
+        print("Please select a player or opponent piece.")
+        row_two = input("Pick the row of the second piece you want to swap: ")
+        col_two = input("Pick the column of the second piece you want to swap: ")
+        r2, c2 = int(row_two), int(col_two)
+        piece_two = board[r2 - 1][c2 - 1]
+        if piece_two == 0:
+            print("Not a valid piece!")
+    board[r1 - 1][c1 - 1] = piece_two
+    board[r2 - 1][c2 - 1] = piece_one
+    # print(piece_one)
+    # print(piece_two)
+    draw_board(board)
+
+
+def remove_piece(board):
+    piece = 0
+    if piece != PLAYER_PIECE or piece != AI_PIECE:
+        print("Please select a player or opponent piece.")
+        row = input("Pick the row of the piece you want to remove: ")
+        col = input("Pick the column of the piece you want to remove: ")
+        r, c = int(row), int(col)
+        piece = board[r - 1][c - 1]
+        if piece == 0:
+            print("Not a valid piece!")
+    for i in range(r, 6):
+            board[i - 1][c - 1] = board[i][c - 1]
+            board[i][c - 1] = 0
+    draw_board(board)
+    
+def color_swap(board):
+    piece = 0
+    if piece != PLAYER_PIECE or piece != AI_PIECE:
+        print("Please select a player or opponent piece.")
+        row = input("Pick the row of the piece you want to color swap: ")
+        col = input("Pick the column of the piece you want to color swap: ")
+        r, c = int(row), int(col)
+        piece = board[r - 1][c - 1]
+        if piece == 0:
+            print("Not a valid piece!")
+    if piece == PLAYER_PIECE:
+        board[r - 1][c - 1] = AI_PIECE
+    if piece == AI_PIECE:
+        board[r - 1][c - 1] = PLAYER_PIECE
+    draw_board(board)
+
 def pick_best_move(board, piece):
 
 	valid_locations = get_valid_locations(board)
@@ -202,6 +264,8 @@ def draw_board(board):
 				pygame.draw.circle(screen, YELLOW, (int(c*SQUARESIZE+SQUARESIZE/2), height-int(r*SQUARESIZE+SQUARESIZE/2)), RADIUS)
 	pygame.display.update()
 
+
+
 board = create_board()
 print_board(board)
 game_over = False
@@ -225,20 +289,54 @@ myfont = pygame.font.SysFont("monospace", 75)
 
 turn = random.randint(PLAYER, AI)
 
+startTurn = True
+avail_power_ups = []
+total_turns = 0
+repeat_turn = False
+
 while not game_over:
 
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			sys.exit()
-
+   
+		if turn == PLAYER and startTurn == True and avail_power_ups:
+			#print(board[0][0])
+			print(avail_power_ups)
+			YN = input("Use Power Up? (y/n): ")
+			if YN == 'y':
+				PowerPick = input("Pick a Power Up: (1, 2, 3, ...): ")
+				numPick = int(PowerPick)
+				chosenPU = avail_power_ups[numPick - 1]
+				if chosenPU == "Color Swap":
+					#insert colorswap function
+					color_swap(board)
+					avail_power_ups.remove(chosenPU)
+				if chosenPU == "Remove Piece":
+					#insert remove piece function
+					remove_piece(board)
+					avail_power_ups.remove(chosenPU)
+				if chosenPU == "Swap Positions":
+					#insert swap position function
+					swap_pos(board)
+					avail_power_ups.remove(chosenPU)
+				if chosenPU == "Double Move":
+					repeat_turn = True
+					avail_power_ups.remove(chosenPU)
+     
+				startTurn = False
+			if YN == 'n':
+				print(YN)
+				startTurn = False
+					
 		if event.type == pygame.MOUSEMOTION:
 			pygame.draw.rect(screen, BLACK, (0,0, width, SQUARESIZE))
 			posx = event.pos[0]
 			if turn == PLAYER:
 				pygame.draw.circle(screen, RED, (posx, int(SQUARESIZE/2)), RADIUS)
+    
 
 		pygame.display.update()
-
 		if event.type == pygame.MOUSEBUTTONDOWN:
 			pygame.draw.rect(screen, BLACK, (0,0, width, SQUARESIZE))
 			#print(event.pos)
@@ -256,11 +354,52 @@ while not game_over:
 						screen.blit(label, (40,10))
 						game_over = True
 
-					turn += 1
-					turn = turn % 2
+					if repeat_turn==False:
+						turn += 1
+						turn = turn % 2
+					else:
+						repeat_turn = False
 
+
+					total_turns += 1
+					if total_turns % 4 == 0:
+						avail_power_ups.append(add_power_up())
+						
+     
 					print_board(board)
 					draw_board(board)
+					startTurn = True
+  
+  		# if event.type == pygame.MOUSEMOTION:
+		# 	pygame.draw.rect(screen, BLACK, (0,0, width, SQUARESIZE))
+		# 	posx = event.pos[0]
+		# 	if turn == PLAYER:
+		# 		pygame.draw.circle(screen, RED, (posx, int(SQUARESIZE/2)), RADIUS)
+    
+
+		# pygame.display.update()
+		# if event.type == pygame.MOUSEBUTTONDOWN:
+		# 	pygame.draw.rect(screen, BLACK, (0,0, width, SQUARESIZE))
+		# 	#print(event.pos)
+		# 	# Ask for Player 1 Input
+		# 	if turn == PLAYER:
+		# 		posx = event.pos[0]
+		# 		col = int(math.floor(posx/SQUARESIZE))
+
+		# 		if is_valid_location(board, col):
+		# 			row = get_next_open_row(board, col)
+		# 			drop_piece(board, row, col, PLAYER_PIECE)
+
+		# 			if winning_move(board, PLAYER_PIECE):
+		# 				label = myfont.render("Player 1 wins!!", 1, RED)
+		# 				screen.blit(label, (40,10))
+		# 				game_over = True
+
+		# 			turn += 1
+		# 			turn = turn % 2
+
+		# 			print_board(board)
+		# 			draw_board(board)
 
 
 	# # Ask for Player 2 Input
